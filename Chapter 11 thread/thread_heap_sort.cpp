@@ -9,9 +9,9 @@
 #define TNUM (NUMNUM / NTHR) /* number to sort per thread */
 
 long nums[NUMNUM];
-long snums[NUMNUM]; // store sorted result
+long snums[NUMNUM];  /* store sorted result */
 
-pthread_barrier_t b; // thread barrier
+pthread_barrier_t b; /* thread barrier */
 
 #ifdef SOLARIS
 #define heapsort qsort
@@ -49,7 +49,8 @@ void down_adjust(void *arr, size_t i, size_t n) {
 int heapsort(void *arr, size_t n, size_t ele_size,
              int (*comp_func)(const void *, const void *)) {
   long *start = (long *)arr;
-  /* array is a complete binary tree
+  /* 
+   * array is a complete binary tree
    * if node idx: i, left child idx: 2*i + 1, right child idx: 2*i + 2
    * idx child's father: (idx - 1) / 2
    * 
@@ -68,8 +69,9 @@ int heapsort(void *arr, size_t n, size_t ele_size,
 void *thr_fn(void *arg) {
   long idx = (long)arg;
   heapsort(&nums[idx], TNUM, sizeof(long), complong);
-  // add a count to the thread barrier
-  // if number is adequate, continue to work, else the thread sleeps
+  /* add a count to the thread barrier
+   * if number is adequate, continue to work, else the thread sleeps
+   */
   pthread_barrier_wait(&b); 
   /*
    * Go off and perform more work ...
@@ -94,7 +96,7 @@ void merge() {
         minidx = i;
       }
     }
-    snums[sidx] = nums[idx[minidx]]; // find the minumum number of each threads
+    snums[sidx] = nums[idx[minidx]]; // find the minumum number of each threads 
     idx[minidx]++;                   // start idx of the selected thread incre
   }
 }
