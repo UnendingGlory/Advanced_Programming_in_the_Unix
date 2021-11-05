@@ -1,3 +1,15 @@
+#!/usr/bin/env python
+# -*- encoding: utf-8 -*-
+'''
+@author: thread.py
+@software: vscode
+@file: thread.py
+@Time: 2021/11/05 18:06:50
+@Desc: Cpython Interpreter has GIL,
+       but pure python is not thread safe!!
+'''
+
+
 import threading
 
 n = 0
