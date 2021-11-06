@@ -37,10 +37,27 @@ int complong(const void *arg1, const void *arg2) {
 
 /*
  * Helper function of the heapsort
- * down ajust the i-th num in the heap
+ * down ajust the ind-th num in the heap
  */
-void down_adjust(void *arr, size_t i, size_t n) {
-  // TODO
+void down_adjust(void *arr, size_t ind, size_t n) {
+  // printf("Down adjust start\n");
+  long *heap = (long *)arr;
+  long temp;
+  size_t i = ind, j = 2 * ind + 1;
+  while (j < n) {
+    if ((j + 1 < n) && (heap[j + 1] > heap[j])) { // right child larger
+      ++j;
+    }
+    if (heap[j] > heap[i]) {
+      temp = heap[j];
+      heap[j] = heap[i];
+      heap[i] = temp;
+      
+      i = j;
+      j = 2 * i + 1;
+    }
+    else { break; } // adjust over
+  }
 }
 
 /*
@@ -58,8 +75,20 @@ int heapsort(void *arr, size_t n, size_t ele_size,
    * step 2: heapsort, swap the first num with the last num
    *         then down_adjust the rest arr
    */
-  
-  
+  long *heap = (long *)arr;
+  long temp, i;
+
+  for (i = (n / 2 - 1); i >= 0; --i) {
+    down_adjust(arr, i, n);
+  }
+
+  for (i = n - 1; i >= 0; --i) {
+    temp = heap[i];
+    heap[i] = heap[0];
+    heap[0] = temp;
+    
+    down_adjust(arr, 0, i);
+  }
   
 }
 
@@ -104,7 +133,32 @@ void merge() {
 /*
  * Single thread to test the time elapse
  */
-void single_thread_heapsort() {}
+void single_thread_heapsort() {
+  unsigned long i;
+  struct timeval start, end;
+  long long startusec, endusec;
+  double elapsed; // time elapsed
+
+  srandom(1);
+  for (i = 0; i < NUMNUM; i++) {
+    nums[i] = random();
+  }
+
+  gettimeofday(&start, nullptr);
+
+  printf("Start single thread heap sort\n");
+  heapsort(nums, NUMNUM, sizeof(long), complong);
+  
+  gettimeofday(&end, nullptr);
+
+  startusec = start.tv_sec * 1000000 + start.tv_usec;
+  endusec = end.tv_sec * 1000000 + end.tv_usec;
+  elapsed = (double)(endusec - startusec) / 1000000.0; // convert to seconds
+  printf("Single Thread sort took %.4f seconds\n", elapsed);
+  for (int i = 0; i < 20; ++i) {
+    printf("%ld ", nums[i]);
+  }
+}
 
 /*
  * Multiple threads to test the time elapse
@@ -125,6 +179,7 @@ void multi_thread_heapsort() {
     nums[i] = random();
   }
 
+  printf("Start multi thread heap sort\n");
   /*
    * Create 8 threads to sort the numbers
    */
@@ -132,7 +187,7 @@ void multi_thread_heapsort() {
   pthread_barrier_init(&b, nullptr, NTHR + 1); // include the main threads
   for (i = 0; i < NTHR; ++i) {
     err = pthread_create(&tid, nullptr, thr_fn,
-                         (void *)(i * TNUM)); // arg for thr_fn
+                         (void *)(i * TNUM)); //  arg for thr_fn(containing heapsort)
     if (err != 0) {
       err_exit(err, "can not create the thread");
     }
@@ -149,14 +204,15 @@ void multi_thread_heapsort() {
   endusec = end.tv_sec * 1000000 + end.tv_usec;
   elapsed = (double)(endusec - startusec) / 1000000.0; // convert to seconds
   printf("Multithread sort took %.4f seconds\n", elapsed);
-  for (int i = 0; i < NUMNUM; ++i) {
-    printf("%ld\n", snums[i]);
+  for (int i = 0; i < 20; ++i) {
+    printf("%ld ", snums[i]);
     // static_assert()
   }
 }
 
 int main() {
   single_thread_heapsort();
-  // multi_thread_heapsort();
+  printf("\n");
+  multi_thread_heapsort();
   return 0;
 }
