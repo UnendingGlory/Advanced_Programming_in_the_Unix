@@ -151,7 +151,7 @@ void single_thread_heapsort() {
   
   gettimeofday(&end, nullptr);
 
-  startusec = start.tv_sec * 1000000 + start.tv_usec;
+  startusec = start.tv_sec * 1000000 + start.tv_usec; // seconds and nanoseconds
   endusec = end.tv_sec * 1000000 + end.tv_usec;
   elapsed = (double)(endusec - startusec) / 1000000.0; // convert to seconds
   printf("Single Thread sort took %.4f seconds\n", elapsed);
